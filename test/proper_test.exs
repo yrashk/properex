@@ -40,7 +40,7 @@ defmodule Proper.TestModule do
     end
 
     property "suchthatmaybe" do
-        forall x in (let x = integer, when_maybe: x > -2), do: x > 0
+        forall x in (let x = pos_integer, when_maybe: x < 0), do: x > 0
     end
 
 end

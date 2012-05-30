@@ -95,7 +95,7 @@ defmodule Proper do
 
     defmacro let({:"=", _, [x, rawtype]},[{:when_maybe, condition}]) do
         quote do
-            :proper_types.add_constraint(unquote(rawtype),fn(unquote(x)) -> unquote(condition) end,true)
+            :proper_types.add_constraint(unquote(rawtype),fn(unquote(x)) -> unquote(condition) end,false)
         end
     end
 
