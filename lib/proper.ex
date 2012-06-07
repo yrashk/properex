@@ -110,11 +110,11 @@ defmodule Proper do
 
     # Delegates
 
-    defdelegate [quickcheck:1, quickcheck:2, counterexample:1, counterexample:2,
-                 check:2, check:3, module:1, module:2, check_spec:1, check_spec:2,
-                 check_specs:1, check_specs: 2,
-                 numtests:2, fails:1, on_output:2, conjunction:1,
-                 collect:2, collect:3, aggregate:2, aggregate:3, classify:3, measure:3,
-                 with_title:1, equals:2], to: :proper
+    defdelegate [quickcheck: 1, quickcheck: 2, counterexample: 1, counterexample: 2,
+                 check: 2, check: 3, module: 1, module: 2, check_spec: 1, check_spec: 2,
+                 check_specs: 1, check_specs: 2,
+                 numtests: 2, fails: 1, on_output: 2, conjunction: 1,
+                 collect: 2, collect: 3, aggregate: 2, aggregate: 3, classify: 3, measure: 3,
+                 with_title: 1, equals: 2], to: :proper
 
 end
