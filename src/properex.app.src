@@ -1,0 +1,11 @@
+{application, properex,
+ [
+  {description, "PropEr bindings for Elixir"},
+  {vsn, git},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
