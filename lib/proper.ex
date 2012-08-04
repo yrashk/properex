@@ -51,6 +51,9 @@ defmodule Proper.Result do
     if :lists.prefix('Error', fmt) do
        state = state.errors([{state.current, {fmt, args}}|state.errors])
     end
+    if :lists.prefix('Failed', fmt) do
+       state = state.errors([{state.current, {fmt, args}}|state.errors])
+    end
     if :lists.prefix('Testing', fmt) do
        state = state.tests([args|state.tests])
        state = state.current(args)
