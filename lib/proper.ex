@@ -67,7 +67,7 @@ defmodule Proper.Result do
   def handle_call(:stop, _from, state) do
     { :stop, :normal, :ok, state }
   end
-  def terminate(:normal, state), do: :ok
+  def terminate(:normal, _state), do: :ok
 end
 
 defmodule Proper do
@@ -164,7 +164,7 @@ defmodule Proper do
                      Proper.Result.message(msg, args)
                     :io.format(msg, args)
                    end
-       res = module(target, [:long_result, {:on_output, on_output}])
+       module(target, [:long_result, {:on_output, on_output}])
        {tests, errors} = Proper.Result.status
        passes = length(tests)
        failures = length(errors)
