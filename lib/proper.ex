@@ -21,7 +21,7 @@ defmodule Proper.Properties do
 end
 
 defmodule Proper.Result do
-  use GenServer.Behavior
+  use GenServer.Behaviour
 
   defrecord State, tests: [], errors: [], current: nil
 
@@ -177,11 +177,17 @@ defmodule Proper do
 
     # Delegates
 
-    defdelegate [quickcheck: 1, quickcheck: 2, counterexample: 1, counterexample: 2,
-                 check: 2, check: 3, module: 1, module: 2, check_spec: 1, check_spec: 2,
-                 check_specs: 1, check_specs: 2,
-                 numtests: 2, fails: 1, on_output: 2, conjunction: 1,
-                 collect: 2, collect: 3, aggregate: 2, aggregate: 3, classify: 3, measure: 3,
-                 with_title: 1, equals: 2], to: :proper
+    defdelegate [quickcheck(test), quickcheck(test, opts), 
+                 counterexample(test), counterexample(test, opts),
+                 check(test, counterexample), check(test, counterexample, opts), 
+                 module(mod), module(mod, opts), 
+                 check_spec(mfa), check_spec(mfa, opts),
+                 check_specs(mod), check_specs(mod, opts),
+                 numtests(n, test), fails(test), on_output(print_fun, test), 
+                 conjunction(sub_props),
+                 collect(category, test), collect(stats_printer, category, test), 
+                 aggregate(sample, test), aggregate(stats_printer, sample, test), 
+                 classify(count, term_or_sample, test), measure(title, sample, test),
+                 with_title(title), equals(a_term, b_term)], to: :proper
 
 end
