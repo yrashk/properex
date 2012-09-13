@@ -1,10 +1,13 @@
-defmodule Mix.Project do
+defmodule Properex.MixFile do
+  use Mix.Project
 
-   def project do
-     [project: "Properex", version: "0.1", 
-     compile_options: [ignore_module_conflict: true, docs: true]]
-   end
+  def project do
+    [app: :properex, version: "0.1", deps: deps]
+  end
 
-   def application, do: []
+  def application, do: []
 
+  defp deps do
+    [{:proper, %r(.*), git: "https://github.com/manopapad/proper"}]
+  end
 end
