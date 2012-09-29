@@ -1,7 +1,3 @@
-Code.prepend_path "deps/proper/ebin"
-Code.prepend_path "builds/__MAIN__.Properex-0.1/ebin"
-
-
 defmodule Proper.Test do
     use ExUnit.Case
 

@@ -110,11 +110,15 @@ defmodule Proper do
 
     # Delegates
 
-    defdelegate [quickcheck: 1, quickcheck: 2, counterexample: 1, counterexample: 2,
-                 check: 2, check: 3, module: 1, module: 2, check_spec: 1, check_spec: 2,
-                 check_specs: 1, check_specs: 2,
-                 numtests: 2, fails: 1, on_output: 2, conjunction: 1,
-                 collect: 2, collect: 3, aggregate: 2, aggregate: 3, classify: 3, measure: 3,
-                 with_title: 1, equals: 2], to: :proper
+    defdelegate [quickcheck(outer_test), quickcheck(outer_test, user_opts),
+                 counterexample(outer_test), counterexample(outer_test, user_opts),
+                 check(outer_test, cexm), check(outer_test, cexm, user_opts),
+                 module(mod), module(mod, user_opts), check_spec(mfa), check_spec(mfa, user_opts),
+                 check_specs(mod), check_specs(mod, user_opts),
+                 numtests(n, test), fails(test), on_output(print, test), conjunction(sub_props),
+                 collect(category, test), collect(printer, category, test),
+                 aggregate(sample, test), aggregate(printer, sample, test),
+                 classify(count, sample, test), measure(title, sample, test),
+                 with_title(title), equals(a,b)], to: :proper
 
 end
