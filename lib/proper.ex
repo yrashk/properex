@@ -25,7 +25,7 @@ defmodule Proper do
     # Test generation macros
     #
 
-    defmacro forall({:"in", _, [x, rawtype]}, [{:"do", prop}]) do
+    defmacro forall({:in, _, [x, rawtype]}, [do: prop]) do
         quote do
             :proper.forall(unquote(rawtype), fn(unquote(x)) -> unquote(prop) end)
         end
@@ -102,7 +102,7 @@ defmodule Proper do
         end
     end
 
-    defmacro letshrink({:"=", _, [x, rawtype]},[{:do, gen}]) do
+    defmacro letshrink({:=, _, [x, rawtype]},[do: gen]) do
         quote do
             :proper_types.bind(unquote(rawtype), fn(unquote(x)) -> unquote(gen) end, true)
         end
