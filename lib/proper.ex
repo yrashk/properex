@@ -20,6 +20,56 @@ defmodule Proper.Properties do
     end
 end
 
+defmodule Proper.Result do
+  use GenServer.Behaviour
+
+  defrecord State, tests: [], errors: [], current: nil
+
+  def start_link do
+    :gen_server.start_link({ :local, __MODULE__ }, __MODULE__, [], [])
+  end
+  def stop do
+    try do
+      :gen_server.call(__MODULE__, :stop)
+    catch
+      _ -> :ok
+    end
+  end
+  def status do
+    :gen_server.call(__MODULE__, :status)
+  end
+
+  def message(fmt, args) do
+    :gen_server.call(__MODULE__, {:message, fmt, args})
+  end
+
+ def init(_args) do
+    { :ok, State.new }
+  end
+
+  def handle_call({:message, fmt, args}, _from, state) do
+    if :lists.prefix('Error', fmt) do
+       state = state.errors([{state.current, {fmt, args}}|state.errors])
+    end
+    if :lists.prefix('Failed', fmt) do
+       state = state.errors([{state.current, {fmt, args}}|state.errors])
+    end
+    if :lists.prefix('Testing', fmt) do
+       state = state.tests([args|state.tests])
+       state = state.current(args)
+    end
+    { :reply, :ok, state }
+  end
+
+  def handle_call(:status, _from, state) do
+    { :reply, {state.tests, state.errors} , state }
+  end
+  def handle_call(:stop, _from, state) do
+    { :stop, :normal, :ok, state }
+  end
+  def terminate(:normal, _state), do: :ok
+end
+
 defmodule Proper do
     #
     # Test generation macros
@@ -106,6 +156,23 @@ defmodule Proper do
         quote do
             :proper_types.bind(unquote(rawtype), fn(unquote(x)) -> unquote(gen) end, true)
         end
+    end
+
+    def run(target, report // true) do
+       Proper.Result.start_link
+       on_output = fn(msg, args) ->
+                     Proper.Result.message(msg, args)
+                    :io.format(msg, args)
+                   end
+       module(target, [:long_result, {:on_output, on_output}])
+       {tests, errors} = Proper.Result.status
+       passes = length(tests)
+       failures = length(errors)
+       Proper.Result.stop
+       if report do
+         IO.puts "#{inspect passes} properties, #{inspect failures} failures."
+       end
+       {tests, errors}
     end
 
     # Delegates
