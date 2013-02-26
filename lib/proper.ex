@@ -20,6 +20,56 @@ defmodule Proper.Properties do
     end
 end
 
+defmodule Proper.Result do
+  use GenServer.Behaviour
+
+  defrecord State, tests: [], errors: [], current: nil
+
+  def start_link do
+    :gen_server.start_link({ :local, __MODULE__ }, __MODULE__, [], [])
+  end
+  def stop do
+    try do
+      :gen_server.call(__MODULE__, :stop)
+    catch
+      _ -> :ok
+    end
+  end
+  def status do
+    :gen_server.call(__MODULE__, :status)
+  end
+
+  def message(fmt, args) do
+    :gen_server.call(__MODULE__, {:message, fmt, args})
+  end
+
+ def init(_args) do
+    { :ok, State.new }
+  end
+
+  def handle_call({:message, fmt, args}, _from, state) do
+    if :lists.prefix('Error', fmt) do
+       state = state.errors([{state.current, {fmt, args}}|state.errors])
+    end
+    if :lists.prefix('Failed', fmt) do
+       state = state.errors([{state.current, {fmt, args}}|state.errors])
+    end
+    if :lists.prefix('Testing', fmt) do
+       state = state.tests([args|state.tests])
+       state = state.current(args)
+    end
+    { :reply, :ok, state }
+  end
+
+  def handle_call(:status, _from, state) do
+    { :reply, {state.tests, state.errors} , state }
+  end
+  def handle_call(:stop, _from, state) do
+    { :stop, :normal, :ok, state }
+  end
+  def terminate(:normal, _state), do: :ok
+end
+
 defmodule Proper do
     #
     # Test generation macros
@@ -108,6 +158,34 @@ defmodule Proper do
         end
     end
 
+    def run(target), do: run(target, [report: true, output: true])
+    def run(target, opts) do
+       Proper.Result.start_link
+       on_output =
+         fn(msg, args) ->
+            Proper.Result.message(msg, args)
+            opts[:output] && :io.format(msg, args)
+            :ok
+         end
+       module(target, [:long_result, {:on_output, on_output}])
+       {tests, errors} = Proper.Result.status
+       passes = length(tests)
+       failures = length(errors)
+       Proper.Result.stop
+       if opts[:report] do
+         IO.puts "#{inspect passes} properties, #{inspect failures} failures."
+       end
+       {tests, errors}
+    end
+
+    def produce(gen, seed // :undefined) do
+      :proper_gen.pick(gen, 10, fork_seed(seed))
+    end
+
+    defmacro is_property(x) do
+      quote do: is_tuple(unquote(x)) and elem(unquote(x), 0) == :"$type"
+    end
+
     # Delegates
 
     defdelegate [quickcheck(outer_test), quickcheck(outer_test, user_opts),
@@ -120,5 +198,21 @@ defmodule Proper do
                  aggregate(sample, test), aggregate(printer, sample, test),
                  classify(count, sample, test), measure(title, sample, test),
                  with_title(title), equals(a,b)], to: :proper
+
+    # Helper functions
+    defmacrop kilo, do: 1000
+    defmacrop mega, do: 10000000
+    defmacrop tera, do: 100000000000000
+    defp fork_seed(:undefined = u), do: u
+    defp fork_seed(time) do
+      hash = :crypto.sha(:binary.encode_unsigned(time2us(time)))
+      us2time(:binary.decode_unsigned(hash))
+    end
+
+    defp time2us({ms, s, us}), do: ms*tera + s*mega + us
+    defp us2time(n) do
+      {rem(div(n, tera), mega), rem(div(n, mega), mega), rem(n, mega)}
+    end
+
 
 end
