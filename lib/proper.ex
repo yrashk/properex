@@ -175,6 +175,14 @@ defmodule Proper do
        {tests, errors}
     end
 
+    def produce(gen, seed // :undefined) do
+      :proper_gen.pick(gen, 10, fork_seed(seed))
+    end
+
+    defmacro is_property(x) do
+      quote do: is_tuple(unquote(x)) and elem(unquote(x), 0) == :"$type"
+    end
+
     # Delegates
 
     defdelegate [quickcheck(outer_test), quickcheck(outer_test, user_opts),
@@ -187,5 +195,21 @@ defmodule Proper do
                  aggregate(sample, test), aggregate(printer, sample, test),
                  classify(count, sample, test), measure(title, sample, test),
                  with_title(title), equals(a,b)], to: :proper
+
+    # Helper functions
+    defmacrop kilo, do: 1000
+    defmacrop mega, do: 10000000
+    defmacrop tera, do: 100000000000000
+    defp fork_seed(:undefined = u), do: u
+    defp fork_seed(time) do
+      hash = :crypto.sha(:binary.encode_unsigned(time2us(time)))
+      us2time(:binary.decode_unsigned(hash))
+    end
+
+    defp time2us({ms, s, us}), do: ms*tera + s*mega + us
+    defp us2time(n) do
+      {rem(div(n, tera), mega), rem(div(n, mega), mega), rem(n, mega)}
+    end
+
 
 end
