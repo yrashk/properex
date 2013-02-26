@@ -158,18 +158,21 @@ defmodule Proper do
         end
     end
 
-    def run(target, report // true) do
+    def run(target), do: run(target, [report: true, output: true])
+    def run(target, opts) do
        Proper.Result.start_link
-       on_output = fn(msg, args) ->
-                     Proper.Result.message(msg, args)
-                    :io.format(msg, args)
-                   end
+       on_output =
+         fn(msg, args) ->
+            Proper.Result.message(msg, args)
+            opts[:output] && :io.format(msg, args)
+            :ok
+         end
        module(target, [:long_result, {:on_output, on_output}])
        {tests, errors} = Proper.Result.status
        passes = length(tests)
        failures = length(errors)
        Proper.Result.stop
-       if report do
+       if opts[:report] do
          IO.puts "#{inspect passes} properties, #{inspect failures} failures."
        end
        {tests, errors}
