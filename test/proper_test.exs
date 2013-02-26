@@ -9,6 +9,11 @@ defmodule Proper.Test do
         assert Proper.quickcheck(property)
     end
 
+    test "run" do
+        {_, failures} = Proper.run(__MODULE__)
+        assert length(failures) == 0
+    end
+
     defp property do
       use Proper.Properties
       forall x in integer, do: is_integer(x)
