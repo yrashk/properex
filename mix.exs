@@ -9,6 +9,6 @@ defmodule Properex.MixFile do
 
   defp deps do
     [ # proper has no explicit version config but tags in github
-    {:proper, ">= 1.1", git: "https://github.com/manopapad/proper"}]
+    {:proper, ">= 1.1", github: "manopapad/proper"}]
   end
 end
