@@ -15,7 +15,7 @@ defmodule Proper.Properties do
                 prop_name = :"prop_#{name}"
         end
         quote do
-            def unquote(prop_name).(), unquote(opts)
+            def unquote(prop_name)(), unquote(opts)
         end
     end
 end
