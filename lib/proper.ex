@@ -6,7 +6,7 @@ defmodule Proper.Properties do
             import :proper_types, except: [lazy: 1, to_binary: 1, function: 2]
         end
     end
-    
+
     defmacro property(name, opts) do
         case name do
             {name, _, _} ->
@@ -80,7 +80,7 @@ defmodule Proper do
             :proper.forall(unquote(rawtype), fn(unquote(x)) -> unquote(prop) end)
         end
     end
-    
+
     defmacro implies(pre, prop) do
         quote do
             :proper.implies(unquote(pre), Proper.delay(unquote(prop)))
@@ -178,7 +178,7 @@ defmodule Proper do
        {tests, errors}
     end
 
-    def produce(gen, seed // :undefined) do
+    def produce(gen, seed \\ :undefined) do
       :proper_gen.pick(gen, 10, fork_seed(seed))
     end
 
