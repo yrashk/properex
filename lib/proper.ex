@@ -21,30 +21,32 @@ defmodule Proper.Properties do
 end
 
 defmodule Proper.Result do
-  use GenServer.Behaviour
+  use GenServer
 
-  defrecord State, tests: [], errors: [], current: nil
+  defmodule State do
+    defstruct tests: [], errors: [], current: nil
+  end
 
   def start_link do
-    :gen_server.start_link({ :local, __MODULE__ }, __MODULE__, [], [])
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
   def stop do
     try do
-      :gen_server.call(__MODULE__, :stop)
+      GenServer.call(__MODULE__, :stop)
     catch
       _ -> :ok
     end
   end
   def status do
-    :gen_server.call(__MODULE__, :status)
+    GenServer.call(__MODULE__, :status)
   end
 
   def message(fmt, args) do
-    :gen_server.call(__MODULE__, {:message, fmt, args})
+    GenServer.call(__MODULE__, {:message, fmt, args})
   end
 
  def init(_args) do
-    { :ok, State.new }
+    { :ok, %State{} }
   end
 
   def handle_call({:message, fmt, args}, _from, state) do
