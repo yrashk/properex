@@ -6,7 +6,7 @@ defmodule Proper.Properties do
             import :proper_types, except: [lazy: 1, to_binary: 1, function: 2]
         end
     end
-    
+
     defmacro property(name, opts) do
         case name do
             {name, _, _} ->
@@ -21,30 +21,32 @@ defmodule Proper.Properties do
 end
 
 defmodule Proper.Result do
-  use GenServer.Behaviour
+  use GenServer
 
-  defrecord State, tests: [], errors: [], current: nil
+  defmodule State do
+    defstruct tests: [], errors: [], current: nil
+  end
 
   def start_link do
-    :gen_server.start_link({ :local, __MODULE__ }, __MODULE__, [], [])
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
   def stop do
     try do
-      :gen_server.call(__MODULE__, :stop)
+      GenServer.call(__MODULE__, :stop)
     catch
       _ -> :ok
     end
   end
   def status do
-    :gen_server.call(__MODULE__, :status)
+    GenServer.call(__MODULE__, :status)
   end
 
   def message(fmt, args) do
-    :gen_server.call(__MODULE__, {:message, fmt, args})
+    GenServer.call(__MODULE__, {:message, fmt, args})
   end
 
  def init(_args) do
-    { :ok, State.new }
+    { :ok, %State{} }
   end
 
   def handle_call({:message, fmt, args}, _from, state) do
@@ -80,7 +82,7 @@ defmodule Proper do
             :proper.forall(unquote(rawtype), fn(unquote(x)) -> unquote(prop) end)
         end
     end
-    
+
     defmacro implies(pre, prop) do
         quote do
             :proper.implies(unquote(pre), Proper.delay(unquote(prop)))
@@ -178,7 +180,7 @@ defmodule Proper do
        {tests, errors}
     end
 
-    def produce(gen, seed // :undefined) do
+    def produce(gen, seed \\ :undefined) do
       :proper_gen.pick(gen, 10, fork_seed(seed))
     end
 
