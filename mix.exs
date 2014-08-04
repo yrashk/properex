@@ -2,7 +2,7 @@ defmodule Properex.MixFile do
   use Mix.Project
 
   def project do
-    [app: :properex, version: "0.1.0", deps: deps, elixir: "~> 0.14.0"]
+    [app: :properex, version: "0.1.0", deps: deps, elixir: "~> 0.14.0 or ~> 0.15.0"]
   end
 
   def application, do: []
